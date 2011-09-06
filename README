@@ -1,0 +1,4 @@
+This is a small puzzle game based on moving boxes out of the way.
+It's a work in progress, feel free to contribute.
+
+It relies on ppp.py from my Python-Preprocessor project to build.
