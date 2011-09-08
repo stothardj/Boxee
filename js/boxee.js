@@ -1,5 +1,13 @@
 (function() {
-  var BACKGROUND_COLOR, BORDER_COLOR, Box, Grid, Level, Level1, Person, bindKeys, canvas, clearScreen, ctx, currentState, downkey, every, g, game, gameIteration, gameLoop, gameState, initGame, leftkey, p, pallete, rightkey, timeHandle, upkey;
+  var BACKGROUND_COLOR, BORDER_COLOR, Box, Grid, HeavyBox, Level, Level1, Person, bindKeys, canvas, clearKeys, clearScreen, ctx, currentState, doNothing, downkey, drawAboutScreen, drawTitleScreen, enterkey, every, g, game, gameIteration, gameLoop, gameState, initGame, initTitle, leftkey, p, pallete, rightkey, startAbout, startGame, startTitle, timeHandle, title, upkey;
+  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+    for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
+    function ctor() { this.constructor = child; }
+    ctor.prototype = parent.prototype;
+    child.prototype = new ctor;
+    child.__super__ = parent.prototype;
+    return child;
+  };
   Grid = (function() {
     function Grid(rows, cols, x, y, width, height) {
       var i, j, _ref, _ref2;
@@ -92,13 +100,14 @@
         return this.anim = 0;
       }
     };
+    Box.prototype.color = pallete[2];
     Box.prototype.draw = function(ctx) {
       var cellHeight, cellWidth, col, row;
       row = this.r * (1 - this.anim) + this.destr * this.anim;
       col = this.c * (1 - this.anim) + this.destc * this.anim;
       cellWidth = this.grid.width / this.grid.cols;
       cellHeight = this.grid.height / this.grid.rows;
-      ctx.fillStyle = pallete[3];
+      ctx.fillStyle = this.color;
       ctx.fillRect(this.grid.x + cellWidth * col, this.grid.y + cellHeight * row, cellWidth, cellHeight);
       ctx.strokeStyle = pallete[4];
       return ctx.strokeRect(this.grid.x + cellWidth * col, this.grid.y + cellHeight * row, cellWidth, cellHeight);
@@ -199,14 +208,26 @@
     };
     return Level;
   })();
+  HeavyBox = (function() {
+    __extends(HeavyBox, Box);
+    function HeavyBox() {
+      HeavyBox.__super__.constructor.apply(this, arguments);
+    }
+    HeavyBox.prototype.canMoveTo = function(r, c) {
+      return false;
+    };
+    HeavyBox.prototype.color = pallete[3];
+    return HeavyBox;
+  })();
   Level1 = new Level(6, 10, function(g) {
-    return [new Person(g, 5, 3), new Box(g, 4, 3), new Box(g, 4, 4)];
+    return [new Person(g, 5, 3), new Box(g, 4, 3), new Box(g, 4, 4), new HeavyBox(g, 1, 2)];
   });
   BACKGROUND_COLOR = pallete[5];
   BORDER_COLOR = pallete[4];
   every = function(ms, cb) {
     return setInterval(cb, ms);
   };
+  doNothing = function() {};
   canvas = document.getElementById("can");
   ctx = canvas.getContext("2d");
   clearScreen = function() {
@@ -215,18 +236,60 @@
     ctx.strokeStyle = BORDER_COLOR;
     return ctx.strokeRect(0, 0, canvas.width, canvas.height);
   };
+  drawTitleScreen = function() {
+    var i, txt, _i, _len, _ref, _results;
+    clearScreen();
+    ctx.strokeStyle = ctx.fillStyle = pallete[4];
+    ctx.font = "bold 50px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Boxee", canvas.width / 2, 60);
+    ctx.font = "bold 24px sans-serif";
+    i = 0;
+    _ref = title.options;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      txt = _ref[_i];
+      if (i === title.hovered) {
+        ctx.fillText(txt, canvas.width / 2, 140 + i * 40);
+      } else {
+        ctx.strokeText(txt, canvas.width / 2, 140 + i * 40);
+      }
+      _results.push(i = i + 1);
+    }
+    return _results;
+  };
+  drawAboutScreen = function() {
+    clearScreen();
+    ctx.fillStyle = pallete[4];
+    ctx.font = "bold 50px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("About", canvas.width / 2, 60);
+    ctx.font = "bold 14px san-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Boxee is a simple puzzle game revolving", 120, 100);
+    ctx.fillText("around pushing boxes out of the way to ", 120, 125);
+    ctx.fillText("reach the goal. Various other obstacles", 120, 150);
+    ctx.fillText("may also appear.", 120, 175);
+    ctx.fillText("The game is written in Coffeescript by ", 120, 225);
+    ctx.fillText("Jake Stothard. Contributions, including", 120, 250);
+    ctx.fillText("puzzles, are welcome. Visit the Github ", 120, 275);
+    ctx.fillText("page for details.", 120, 300);
+    return ctx.fillText("Press enter to return to the title screen", 120, 350);
+  };
   g = Level1.createGrid(0, 0, canvas.width, canvas.height);
   p = g.person;
   game = void 0;
+  title = void 0;
   timeHandle = void 0;
   gameState = {
     title: "Title",
+    about: "About",
     gameover: "Game Over",
     editing: "Editing",
     playing: "Playing",
     crashed: "Crashed"
   };
-  currentState = gameState.playing;
+  currentState = gameState.title;
   initGame = function() {
     return game = {
       crashed: false
@@ -236,8 +299,41 @@
   downkey = function() {};
   leftkey = function() {};
   rightkey = function() {};
+  enterkey = function() {};
+  clearKeys = function() {
+    upkey = function() {};
+    downkey = function() {};
+    leftkey = function() {};
+    rightkey = function() {};
+    return enterkey = function() {};
+  };
   bindKeys = function() {
+    clearKeys();
     switch (currentState) {
+      case gameState.title:
+        upkey = function() {
+          if (title.hovered === 0) {
+            title.hovered = title.options.length - 1;
+          } else {
+            title.hovered -= 1;
+          }
+          return drawTitleScreen();
+        };
+        downkey = function() {
+          if (title.hovered === title.options.length - 1) {
+            title.hovered = 0;
+          } else {
+            title.hovered += 1;
+          }
+          return drawTitleScreen();
+        };
+        return enterkey = function() {
+          return title.actions[title.hovered]();
+        };
+      case gameState.about:
+        return enterkey = function() {
+          return startTitle();
+        };
       case gameState.playing:
         upkey = function() {
           return p.moveTo(p.r - 1, p.c);
@@ -253,9 +349,35 @@
         };
     }
   };
+  startGame = function() {
+    currentState = gameState.playing;
+    initGame();
+    bindKeys();
+    return timeHandle = every(32, gameLoop);
+  };
+  startAbout = function() {
+    currentState = gameState.about;
+    bindKeys();
+    return drawAboutScreen();
+  };
+  initTitle = function() {
+    return title = {
+      hovered: 0,
+      options: ["Play puzzles", "Level editor", "About"],
+      actions: [startGame, doNothing, startAbout]
+    };
+  };
+  startTitle = function() {
+    currentState = gameState.title;
+    initTitle();
+    bindKeys();
+    return drawTitleScreen();
+  };
   $(document).keydown(function(e) {
     console.log(e.which);
     switch (e.which) {
+      case 13:
+        return enterkey();
       case 68:
       case 39:
         return rightkey();
@@ -287,8 +409,9 @@
   };
   switch (currentState) {
     case gameState.playing:
-      initGame();
-      bindKeys();
-      timeHandle = every(32, gameLoop);
+      startGame();
+      break;
+    case gameState.title:
+      startTitle();
   }
 }).call(this);
