@@ -1,6 +1,6 @@
 #Pallete of colors to be used by game
 pallete = [
-    "#777777" # Border
+    "#777777" # Border and Text
   , "#FFFFFF" # Background
   , "#CAEAC3"
   , "#C3EACF"

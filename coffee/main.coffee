@@ -9,49 +9,53 @@ BORDER_COLOR = pallete[0]
 every = (ms, cb) -> setInterval(cb, ms)
 doNothing = ->
 
-canvas = document.getElementById("can")
-ctx = canvas.getContext("2d")
+canvas_l = document.getElementById("left_panel")
+canvas_c = document.getElementById("center_panel")
+canvas_r = document.getElementById("right_panel")
+ctx_l = canvas_l.getContext("2d")
+ctx_c = canvas_c.getContext("2d")
+ctx_r = canvas_r.getContext("2d")
 
-clearScreen = ->
+clearScreen = ( canvas, ctx ) ->
   ctx.fillStyle = BACKGROUND_COLOR
   ctx.fillRect(0,0,canvas.width,canvas.height)
   ctx.strokeStyle = BORDER_COLOR
   ctx.strokeRect(0,0,canvas.width,canvas.height)
 
 drawTitleScreen = ->
-  clearScreen()
-  ctx.strokeStyle = ctx.fillStyle = pallete[0]
-  ctx.font = "bold 50px sans-serif"
-  ctx.textAlign = "center"
-  ctx.fillText( "Boxee", canvas.width / 2, 60 )
-  ctx.font = "bold 24px sans-serif"
+  clearScreen( canvas_c, ctx_c )
+  ctx_c.strokeStyle = ctx_c.fillStyle = pallete[0]
+  ctx_c.font = "bold 50px sans-serif"
+  ctx_c.textAlign = "center"
+  ctx_c.fillText( "Boxee", canvas_c.width / 2, 60 )
+  ctx_c.font = "bold 24px sans-serif"
   i = 0
   for txt in title.options
     if i is title.hovered
-      ctx.fillText( txt, canvas.width / 2, 140 + i * 40 )
+      ctx_c.fillText( txt, canvas_c.width / 2, 140 + i * 40 )
     else
-      ctx.strokeText( txt, canvas.width / 2, 140 + i * 40 )
+      ctx_c.strokeText( txt, canvas_c.width / 2, 140 + i * 40 )
     i = i + 1
 
 drawAboutScreen = ->
-  clearScreen()
-  ctx.fillStyle = pallete[0]
-  ctx.font = "bold 50px sans-serif"
-  ctx.textAlign = "center"
-  ctx.fillText( "About", canvas.width / 2, 60 )
-  ctx.font = "bold 14px san-serif"
-  ctx.textAlign = "left"
-  ctx.fillText( "Boxee is a simple puzzle game revolving", 120, 100 )
-  ctx.fillText( "around pushing boxes out of the way to ", 120, 125 )
-  ctx.fillText( "reach the goal. Various other obstacles", 120, 150 )
-  ctx.fillText( "may also appear.", 120, 175 )
-  ctx.fillText( "The game is written in Coffeescript by ", 120, 225 )
-  ctx.fillText( "Jake Stothard. Contributions, including", 120, 250 )
-  ctx.fillText( "puzzles, are welcome. Visit the Github ", 120, 275 )
-  ctx.fillText( "page for details.", 120, 300 )
-  ctx.fillText( "Press enter to return to the title screen", 120, 350 )
+  clearScreen( canvas_c, ctx_c )
+  ctx_c.fillStyle = pallete[0]
+  ctx_c.font = "bold 50px sans-serif"
+  ctx_c.textAlign = "center"
+  ctx_c.fillText( "About", canvas_c.width / 2, 60 )
+  ctx_c.font = "bold 14px san-serif"
+  ctx_c.textAlign = "left"
+  ctx_c.fillText( "Boxee is a simple puzzle game revolving", 120, 100 )
+  ctx_c.fillText( "around pushing boxes out of the way to ", 120, 125 )
+  ctx_c.fillText( "reach the goal. Various other obstacles", 120, 150 )
+  ctx_c.fillText( "may also appear.", 120, 175 )
+  ctx_c.fillText( "The game is written in Coffeescript by ", 120, 225 )
+  ctx_c.fillText( "Jake Stothard. Contributions, including", 120, 250 )
+  ctx_c.fillText( "puzzles, are welcome. Visit the Github ", 120, 275 )
+  ctx_c.fillText( "page for details.", 120, 300 )
+  ctx_c.fillText( "Press enter to return to the title screen", 120, 350 )
 
-g = Levels[0].createGrid( 0, 0, canvas.width, canvas.height)
+g = Levels[0].createGrid( 0, 0, canvas_c.width, canvas_c.height)
 p = g.person
 
 game = undefined
@@ -116,10 +120,18 @@ bindKeys = ->
       rightkey = -> p.moveTo( p.r, p.c + 1 )
 
 
+drawKey = ->
+  clearScreen( canvas_r, ctx_r )
+  ctx_r.fillStyle = pallete[0]
+  ctx_r.font = "bold 14px san-serif"
+  ctx_r.textAlign = "center"
+  ctx_r.fillText( "Key", canvas_r.width / 2, 20 )
+
 startGame = ->
   currentState = gameState.playing
   initGame()
   bindKeys()
+  drawKey()
   timeHandle = every 32, gameLoop
 
 startAbout = ->
@@ -157,8 +169,8 @@ $(document)
   )
 
 gameIteration = ->
-  clearScreen()
-  g.draw(ctx)
+  clearScreen( canvas_c, ctx_c )
+  g.draw(ctx_c)
   g.update()
 
 gameLoop = ->

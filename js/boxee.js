@@ -1,5 +1,5 @@
 (function() {
-  var BACKGROUND_COLOR, BORDER_COLOR, Box, Goal, Grid, GridItem, HeavyBox, Level, Levels, Person, bindKeys, canvas, clearKeys, clearScreen, ctx, currentState, doNothing, downkey, drawAboutScreen, drawTitleScreen, enterkey, every, g, game, gameIteration, gameLoop, gameState, initGame, initTitle, leftkey, p, pallete, rightkey, startAbout, startGame, startTitle, timeHandle, title, upkey;
+  var BACKGROUND_COLOR, BORDER_COLOR, Box, Goal, Grid, GridItem, HeavyBox, Level, Levels, Person, bindKeys, canvas_c, canvas_l, canvas_r, clearKeys, clearScreen, ctx_c, ctx_l, ctx_r, currentState, doNothing, downkey, drawAboutScreen, drawKey, drawTitleScreen, enterkey, every, g, game, gameIteration, gameLoop, gameState, initGame, initTitle, leftkey, p, pallete, rightkey, startAbout, startGame, startTitle, timeHandle, title, upkey;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -272,9 +272,13 @@
     return setInterval(cb, ms);
   };
   doNothing = function() {};
-  canvas = document.getElementById("can");
-  ctx = canvas.getContext("2d");
-  clearScreen = function() {
+  canvas_l = document.getElementById("left_panel");
+  canvas_c = document.getElementById("center_panel");
+  canvas_r = document.getElementById("right_panel");
+  ctx_l = canvas_l.getContext("2d");
+  ctx_c = canvas_c.getContext("2d");
+  ctx_r = canvas_r.getContext("2d");
+  clearScreen = function(canvas, ctx) {
     ctx.fillStyle = BACKGROUND_COLOR;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = BORDER_COLOR;
@@ -282,45 +286,45 @@
   };
   drawTitleScreen = function() {
     var i, txt, _i, _len, _ref, _results;
-    clearScreen();
-    ctx.strokeStyle = ctx.fillStyle = pallete[0];
-    ctx.font = "bold 50px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Boxee", canvas.width / 2, 60);
-    ctx.font = "bold 24px sans-serif";
+    clearScreen(canvas_c, ctx_c);
+    ctx_c.strokeStyle = ctx_c.fillStyle = pallete[0];
+    ctx_c.font = "bold 50px sans-serif";
+    ctx_c.textAlign = "center";
+    ctx_c.fillText("Boxee", canvas_c.width / 2, 60);
+    ctx_c.font = "bold 24px sans-serif";
     i = 0;
     _ref = title.options;
     _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       txt = _ref[_i];
       if (i === title.hovered) {
-        ctx.fillText(txt, canvas.width / 2, 140 + i * 40);
+        ctx_c.fillText(txt, canvas_c.width / 2, 140 + i * 40);
       } else {
-        ctx.strokeText(txt, canvas.width / 2, 140 + i * 40);
+        ctx_c.strokeText(txt, canvas_c.width / 2, 140 + i * 40);
       }
       _results.push(i = i + 1);
     }
     return _results;
   };
   drawAboutScreen = function() {
-    clearScreen();
-    ctx.fillStyle = pallete[0];
-    ctx.font = "bold 50px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("About", canvas.width / 2, 60);
-    ctx.font = "bold 14px san-serif";
-    ctx.textAlign = "left";
-    ctx.fillText("Boxee is a simple puzzle game revolving", 120, 100);
-    ctx.fillText("around pushing boxes out of the way to ", 120, 125);
-    ctx.fillText("reach the goal. Various other obstacles", 120, 150);
-    ctx.fillText("may also appear.", 120, 175);
-    ctx.fillText("The game is written in Coffeescript by ", 120, 225);
-    ctx.fillText("Jake Stothard. Contributions, including", 120, 250);
-    ctx.fillText("puzzles, are welcome. Visit the Github ", 120, 275);
-    ctx.fillText("page for details.", 120, 300);
-    return ctx.fillText("Press enter to return to the title screen", 120, 350);
+    clearScreen(canvas_c, ctx_c);
+    ctx_c.fillStyle = pallete[0];
+    ctx_c.font = "bold 50px sans-serif";
+    ctx_c.textAlign = "center";
+    ctx_c.fillText("About", canvas_c.width / 2, 60);
+    ctx_c.font = "bold 14px san-serif";
+    ctx_c.textAlign = "left";
+    ctx_c.fillText("Boxee is a simple puzzle game revolving", 120, 100);
+    ctx_c.fillText("around pushing boxes out of the way to ", 120, 125);
+    ctx_c.fillText("reach the goal. Various other obstacles", 120, 150);
+    ctx_c.fillText("may also appear.", 120, 175);
+    ctx_c.fillText("The game is written in Coffeescript by ", 120, 225);
+    ctx_c.fillText("Jake Stothard. Contributions, including", 120, 250);
+    ctx_c.fillText("puzzles, are welcome. Visit the Github ", 120, 275);
+    ctx_c.fillText("page for details.", 120, 300);
+    return ctx_c.fillText("Press enter to return to the title screen", 120, 350);
   };
-  g = Levels[0].createGrid(0, 0, canvas.width, canvas.height);
+  g = Levels[0].createGrid(0, 0, canvas_c.width, canvas_c.height);
   p = g.person;
   game = void 0;
   title = void 0;
@@ -393,10 +397,18 @@
         };
     }
   };
+  drawKey = function() {
+    clearScreen(canvas_r, ctx_r);
+    ctx_r.fillStyle = pallete[0];
+    ctx_r.font = "bold 14px san-serif";
+    ctx_r.textAlign = "center";
+    return ctx_r.fillText("Key", canvas_r.width / 2, 20);
+  };
   startGame = function() {
     currentState = gameState.playing;
     initGame();
     bindKeys();
+    drawKey();
     return timeHandle = every(32, gameLoop);
   };
   startAbout = function() {
@@ -437,8 +449,8 @@
     }
   });
   gameIteration = function() {
-    clearScreen();
-    g.draw(ctx);
+    clearScreen(canvas_c, ctx_c);
+    g.draw(ctx_c);
     return g.update();
   };
   gameLoop = function() {
