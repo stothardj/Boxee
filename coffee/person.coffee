@@ -36,8 +36,8 @@ class Person
     centerX = @grid.x + @grid.x + cellWidth * ( col + 0.5 )
     centerY = @grid.y + @grid.y + cellHeight * ( row + 0.5 )
     radius = Math.min( cellWidth, cellHeight ) / 2 - 1
-    ctx.fillStyle = pallete[0]
-    ctx.strokeStyle = pallete[4]
+    ctx.fillStyle = pallete[1]
+    ctx.strokeStyle = pallete[0]
     ctx.beginPath()
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2, false)
     ctx.fill()

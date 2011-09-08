@@ -1,5 +1,5 @@
 (function() {
-  var BACKGROUND_COLOR, BORDER_COLOR, Box, Grid, HeavyBox, Level, Level1, Person, bindKeys, canvas, clearKeys, clearScreen, ctx, currentState, doNothing, downkey, drawAboutScreen, drawTitleScreen, enterkey, every, g, game, gameIteration, gameLoop, gameState, initGame, initTitle, leftkey, p, pallete, rightkey, startAbout, startGame, startTitle, timeHandle, title, upkey;
+  var BACKGROUND_COLOR, BORDER_COLOR, Box, Goal, Grid, GridItem, HeavyBox, Level, Levels, Person, bindKeys, canvas, clearKeys, clearScreen, ctx, currentState, doNothing, downkey, drawAboutScreen, drawTitleScreen, enterkey, every, g, game, gameIteration, gameLoop, gameState, initGame, initTitle, leftkey, p, pallete, rightkey, startAbout, startGame, startTitle, timeHandle, title, upkey;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -79,8 +79,21 @@
     };
     return Grid;
   })();
-  pallete = ["#98BC80", "#5B704C", "#BDB980", "#706E4C", "#424242", "#BDBDBD"];
+  GridItem = (function() {
+    function GridItem(grid, r, c) {
+      this.grid = grid;
+      this.r = r;
+      this.c = c;
+      grid.add(this, this.r, this.c);
+    }
+    GridItem.prototype.draw = function(ctx) {};
+    GridItem.prototype.update = function() {};
+    GridItem.prototype.moveTo = function(r, c) {};
+    return GridItem;
+  })();
+  pallete = ["#777777", "#FFFFFF", "#CAEAC3", "#C3EACF", "#C3EAE3", "#C3DDEA", "#C3CAEA", "#CFC3EA", "#E3C3EA", "#EAC3DD", "#EAC3CA", "#EACFC3", "#EAE3C3", "#DDEAC3", "#A2DA95", "#7ACA68", "#CD95DA", "#B868CA"];
   Box = (function() {
+    __extends(Box, GridItem);
     function Box(grid, r, c) {
       this.grid = grid;
       this.r = r;
@@ -109,7 +122,7 @@
       cellHeight = this.grid.height / this.grid.rows;
       ctx.fillStyle = this.color;
       ctx.fillRect(this.grid.x + cellWidth * col, this.grid.y + cellHeight * row, cellWidth, cellHeight);
-      ctx.strokeStyle = pallete[4];
+      ctx.strokeStyle = pallete[0];
       return ctx.strokeRect(this.grid.x + cellWidth * col, this.grid.y + cellHeight * row, cellWidth, cellHeight);
     };
     Box.prototype.update = function() {
@@ -173,8 +186,8 @@
       centerX = this.grid.x + this.grid.x + cellWidth * (col + 0.5);
       centerY = this.grid.y + this.grid.y + cellHeight * (row + 0.5);
       radius = Math.min(cellWidth, cellHeight) / 2 - 1;
-      ctx.fillStyle = pallete[0];
-      ctx.strokeStyle = pallete[4];
+      ctx.fillStyle = pallete[1];
+      ctx.strokeStyle = pallete[0];
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, Math.PI * 2, false);
       ctx.fill();
@@ -216,14 +229,45 @@
     HeavyBox.prototype.canMoveTo = function(r, c) {
       return false;
     };
-    HeavyBox.prototype.color = pallete[3];
+    HeavyBox.prototype.color = pallete[9];
     return HeavyBox;
   })();
-  Level1 = new Level(6, 10, function(g) {
-    return [new Person(g, 5, 3), new Box(g, 4, 3), new Box(g, 4, 4), new HeavyBox(g, 1, 2)];
-  });
-  BACKGROUND_COLOR = pallete[5];
-  BORDER_COLOR = pallete[4];
+  Goal = (function() {
+    __extends(Goal, GridItem);
+    function Goal() {
+      Goal.__super__.constructor.apply(this, arguments);
+    }
+    Goal.prototype.draw = function(ctx) {
+      var cellHeight, cellWidth, centerX, centerY;
+      cellWidth = this.grid.width / this.grid.cols;
+      cellHeight = this.grid.height / this.grid.rows;
+      ctx.fillStyle = pallete[6];
+      ctx.strokeStyle = pallete[0];
+      centerX = this.grid.x + cellWidth * (this.c + 0.5);
+      centerY = this.grid.y + cellHeight * (this.r + 0.5);
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY - cellHeight * 0.4);
+      ctx.lineTo(centerX + cellWidth * 0.12, centerY - cellHeight * 0.1);
+      ctx.lineTo(centerX + cellWidth * 0.4, centerY - cellHeight * 0.1);
+      ctx.lineTo(centerX + cellWidth * 0.2, centerY + cellHeight * 0.1);
+      ctx.lineTo(centerX + cellWidth * 0.3, centerY + cellHeight * 0.4);
+      ctx.lineTo(centerX, centerY + cellHeight * 0.2);
+      ctx.lineTo(centerX - cellWidth * 0.3, centerY + cellHeight * 0.4);
+      ctx.lineTo(centerX - cellWidth * 0.2, centerY + cellHeight * 0.1);
+      ctx.lineTo(centerX - cellWidth * 0.4, centerY - cellHeight * 0.1);
+      ctx.lineTo(centerX - cellWidth * 0.12, centerY - cellHeight * 0.1);
+      ctx.closePath();
+      ctx.fill();
+      return ctx.stroke();
+    };
+    return Goal;
+  })();
+  Levels = [];
+  Levels.push(new Level(6, 10, function(g) {
+    return [new Person(g, 5, 3), new Box(g, 4, 3), new Box(g, 4, 4), new HeavyBox(g, 1, 2), new Goal(g, 2, 2)];
+  }));
+  BACKGROUND_COLOR = pallete[1];
+  BORDER_COLOR = pallete[0];
   every = function(ms, cb) {
     return setInterval(cb, ms);
   };
@@ -239,7 +283,7 @@
   drawTitleScreen = function() {
     var i, txt, _i, _len, _ref, _results;
     clearScreen();
-    ctx.strokeStyle = ctx.fillStyle = pallete[4];
+    ctx.strokeStyle = ctx.fillStyle = pallete[0];
     ctx.font = "bold 50px sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("Boxee", canvas.width / 2, 60);
@@ -260,7 +304,7 @@
   };
   drawAboutScreen = function() {
     clearScreen();
-    ctx.fillStyle = pallete[4];
+    ctx.fillStyle = pallete[0];
     ctx.font = "bold 50px sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("About", canvas.width / 2, 60);
@@ -276,7 +320,7 @@
     ctx.fillText("page for details.", 120, 300);
     return ctx.fillText("Press enter to return to the title screen", 120, 350);
   };
-  g = Level1.createGrid(0, 0, canvas.width, canvas.height);
+  g = Levels[0].createGrid(0, 0, canvas.width, canvas.height);
   p = g.person;
   game = void 0;
   title = void 0;

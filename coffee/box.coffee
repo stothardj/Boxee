@@ -1,7 +1,8 @@
 !import "grid.coffee"
+!import "griditem.coffee"
 !import "pallete.coffee"
 
-class Box
+class Box extends GridItem
   constructor: (@grid, @r, @c) ->
     grid.add( this, @r, @c )
     @anim = 0
@@ -26,7 +27,7 @@ class Box
     cellHeight = @grid.height / @grid.rows
     ctx.fillStyle = @color
     ctx.fillRect(@grid.x + cellWidth * col, @grid.y + cellHeight * row, cellWidth, cellHeight)
-    ctx.strokeStyle = pallete[4]
+    ctx.strokeStyle = pallete[0]
     ctx.strokeRect(@grid.x + cellWidth * col, @grid.y + cellHeight * row, cellWidth, cellHeight)
 
   update: ->

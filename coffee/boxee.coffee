@@ -32,16 +32,44 @@ class Grid
   update: ->
     f = (item) -> item.update()
     @forAllItems(f)
-#Pallete of colors to be used by game
-pallete = [ "#98BC80"
-  , "#5B704C"
-  , "#BDB980"
-  , "#706E4C"
-  , "#424242"
-  , "#BDBDBD"
+# Contains base functionality which can be assumed for all items added to a grid
+
+class GridItem
+  # Any constructed GridItem adds itself to the grid
+  constructor: (@grid, @r, @c) ->
+    grid.add( this, @r, @c )
+
+  # You can call draw to redraw
+  draw: (ctx) ->
+
+  # You can call update for animation
+  update: ->
+
+  # You can call move to in order to ATTEMPT, to move an item. It may refuse to move based on rules
+  # if you want to move an item ignoring rules and animations, just change the @r and @c
+  moveTo: (r, c) ->#Pallete of colors to be used by game
+pallete = [
+    "#777777" # Border
+  , "#FFFFFF" # Background
+  , "#CAEAC3"
+  , "#C3EACF"
+  , "#C3EAE3"
+  , "#C3DDEA"
+  , "#C3CAEA"
+  , "#CFC3EA"
+  , "#E3C3EA"
+  , "#EAC3DD"
+  , "#EAC3CA"
+  , "#EACFC3"
+  , "#EAE3C3"
+  , "#DDEAC3"
+  , "#A2DA95"
+  , "#7ACA68"
+  , "#CD95DA"
+  , "#B868CA"
   ]
 
-class Box
+class Box extends GridItem
   constructor: (@grid, @r, @c) ->
     grid.add( this, @r, @c )
     @anim = 0
@@ -66,7 +94,7 @@ class Box
     cellHeight = @grid.height / @grid.rows
     ctx.fillStyle = @color
     ctx.fillRect(@grid.x + cellWidth * col, @grid.y + cellHeight * row, cellWidth, cellHeight)
-    ctx.strokeStyle = pallete[4]
+    ctx.strokeStyle = pallete[0]
     ctx.strokeRect(@grid.x + cellWidth * col, @grid.y + cellHeight * row, cellWidth, cellHeight)
 
   update: ->
@@ -115,8 +143,8 @@ class Person
     centerX = @grid.x + @grid.x + cellWidth * ( col + 0.5 )
     centerY = @grid.y + @grid.y + cellHeight * ( row + 0.5 )
     radius = Math.min( cellWidth, cellHeight ) / 2 - 1
-    ctx.fillStyle = pallete[0]
-    ctx.strokeStyle = pallete[4]
+    ctx.fillStyle = pallete[1]
+    ctx.strokeStyle = pallete[0]
     ctx.beginPath()
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2, false)
     ctx.fill()
@@ -147,13 +175,40 @@ class HeavyBox extends Box
   canMoveTo: (r, c) ->
     false
 
-  color: pallete[3]
-Level1 = new Level( 6, 10,
-  (g) -> [ new Person(g, 5, 3), new Box(g, 4, 3), new Box(g, 4, 4), new HeavyBox(g, 1, 2) ]
+  color: pallete[9]
+class Goal extends GridItem
+
+  draw: (ctx) ->
+    cellWidth = @grid.width / @grid.cols
+    cellHeight = @grid.height / @grid.rows
+    ctx.fillStyle = pallete[6]
+    ctx.strokeStyle = pallete[0]
+    centerX = @grid.x + cellWidth * (@c + 0.5)
+    centerY = @grid.y + cellHeight * (@r + 0.5)
+    # ctx.fillRect(@grid.x + cellWidth * @c, @grid.y + cellHeight * @r, cellWidth, cellHeight)
+    ctx.beginPath()
+    ctx.moveTo( centerX, centerY - cellHeight * 0.4 )
+    ctx.lineTo( centerX + cellWidth * 0.12, centerY - cellHeight * 0.1 )
+    ctx.lineTo( centerX + cellWidth * 0.4, centerY - cellHeight * 0.1 )
+    ctx.lineTo( centerX + cellWidth * 0.2, centerY + cellHeight * 0.1 )
+    ctx.lineTo( centerX + cellWidth * 0.3, centerY + cellHeight * 0.4 )
+    ctx.lineTo( centerX, centerY + cellHeight * 0.2 )
+    ctx.lineTo( centerX - cellWidth * 0.3, centerY + cellHeight * 0.4 )
+    ctx.lineTo( centerX - cellWidth * 0.2, centerY + cellHeight * 0.1 )
+    ctx.lineTo( centerX - cellWidth * 0.4, centerY - cellHeight * 0.1 )
+    ctx.lineTo( centerX - cellWidth * 0.12, centerY - cellHeight * 0.1 )
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
+
+Levels = []
+
+Levels.push new Level( 6, 10,
+  (g) -> [ new Person(g, 5, 3), new Box(g, 4, 3), new Box(g, 4, 4), new HeavyBox(g, 1, 2), new Goal(g, 2, 2) ]
   )
 
-BACKGROUND_COLOR = pallete[5]
-BORDER_COLOR = pallete[4]
+BACKGROUND_COLOR = pallete[1]
+BORDER_COLOR = pallete[0]
 
 every = (ms, cb) -> setInterval(cb, ms)
 doNothing = ->
@@ -169,7 +224,7 @@ clearScreen = ->
 
 drawTitleScreen = ->
   clearScreen()
-  ctx.strokeStyle = ctx.fillStyle = pallete[4]
+  ctx.strokeStyle = ctx.fillStyle = pallete[0]
   ctx.font = "bold 50px sans-serif"
   ctx.textAlign = "center"
   ctx.fillText( "Boxee", canvas.width / 2, 60 )
@@ -184,7 +239,7 @@ drawTitleScreen = ->
 
 drawAboutScreen = ->
   clearScreen()
-  ctx.fillStyle = pallete[4]
+  ctx.fillStyle = pallete[0]
   ctx.font = "bold 50px sans-serif"
   ctx.textAlign = "center"
   ctx.fillText( "About", canvas.width / 2, 60 )
@@ -200,7 +255,7 @@ drawAboutScreen = ->
   ctx.fillText( "page for details.", 120, 300 )
   ctx.fillText( "Press enter to return to the title screen", 120, 350 )
 
-g = Level1.createGrid( 0, 0, canvas.width, canvas.height)
+g = Levels[0].createGrid( 0, 0, canvas.width, canvas.height)
 p = g.person
 
 game = undefined

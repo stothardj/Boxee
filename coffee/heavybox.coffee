@@ -4,4 +4,4 @@ class HeavyBox extends Box
   canMoveTo: (r, c) ->
     false
 
-  color: pallete[3]
+  color: pallete[9]

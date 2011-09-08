@@ -3,8 +3,8 @@
 !import "pallete.coffee"
 !import "levels.coffee"
 
-BACKGROUND_COLOR = pallete[5]
-BORDER_COLOR = pallete[4]
+BACKGROUND_COLOR = pallete[1]
+BORDER_COLOR = pallete[0]
 
 every = (ms, cb) -> setInterval(cb, ms)
 doNothing = ->
@@ -20,7 +20,7 @@ clearScreen = ->
 
 drawTitleScreen = ->
   clearScreen()
-  ctx.strokeStyle = ctx.fillStyle = pallete[4]
+  ctx.strokeStyle = ctx.fillStyle = pallete[0]
   ctx.font = "bold 50px sans-serif"
   ctx.textAlign = "center"
   ctx.fillText( "Boxee", canvas.width / 2, 60 )
@@ -35,7 +35,7 @@ drawTitleScreen = ->
 
 drawAboutScreen = ->
   clearScreen()
-  ctx.fillStyle = pallete[4]
+  ctx.fillStyle = pallete[0]
   ctx.font = "bold 50px sans-serif"
   ctx.textAlign = "center"
   ctx.fillText( "About", canvas.width / 2, 60 )
@@ -51,7 +51,7 @@ drawAboutScreen = ->
   ctx.fillText( "page for details.", 120, 300 )
   ctx.fillText( "Press enter to return to the title screen", 120, 350 )
 
-g = Level1.createGrid( 0, 0, canvas.width, canvas.height)
+g = Levels[0].createGrid( 0, 0, canvas.width, canvas.height)
 p = g.person
 
 game = undefined
