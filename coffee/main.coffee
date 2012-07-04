@@ -76,7 +76,7 @@ initGame = ->
   game =
     crashed: false
 
-
+#Here for scope reasons, can't just call clearKeys
 upkey = ->
 downkey = ->
 leftkey = ->
@@ -153,7 +153,7 @@ startTitle = ->
 
 $(document)
   .keydown( (e) ->
-    console.log e.which
+    # console.log e.which
     # This method only makes sense since I am planning on using very few keys
     switch e.which
       when 13

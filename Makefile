@@ -2,10 +2,12 @@
 SOURCES=$(wildcard coffee/*.coffee)
 .PHONY: clean
 
-js/boxee.js: $(SOURCES)
-	./ppp.py coffee/main.coffee > coffee/boxee.coffee
-	coffee -c -o js coffee/boxee.coffee
+js/boxee.js: build/boxee.coffee
+	coffee -c -o js build/boxee.coffee
+
+build/boxee.coffee: $(SOURCES)
+	./ppp.py coffee/main.coffee > build/boxee.coffee
 
 clean:
 	rm -f js/*
-	rm -f coffee/boxee.coffee
+	rm -f build/boxee.coffee

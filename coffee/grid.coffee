@@ -15,16 +15,26 @@ class Grid
     @gr[r][c]
 
   add: (item, r, c) ->
+    console.log "Adding item:"
+    console.log item
     @gr[r][c].push(item)
 
   remove: (item, r, c) ->
+    console.log "Removing item:"
+    console.log item
     @gr[r][c].splice(@gr[r][c].indexOf(item), 1)
 
   forAllItems: (f) ->
+    # Cannot simply call f on item in the deep loop in case f removes the item and readds it somewhere else
+    # this is not just theoretical
+    a = []
     for row in @gr
       for cell in row
         for item in cell
-          f(item)
+          a.push item
+    for item in a
+      f(item)
+
   draw: (ctx) ->
     f = (item) -> item.draw(ctx)
     @forAllItems(f)

@@ -12,11 +12,17 @@ class Box extends GridItem
   canMoveTo: (r, c) ->
     @grid.validCoord(r, c) and @grid.get(r, c).length is 0
 
+  moving: ->
+    @destr isnt @r or @destc isnt @c
+
+  # Return true if sucessfully moved, otherwise return false and do nothing
   moveTo: (r, c) ->
-    if @canMoveTo(r, c) and @destr is @r and @destc is @c
+    if @canMoveTo(r, c) and not @moving()
       @destr = r
       @destc = c
       @anim = 0
+      return true
+    return false
 
   color: pallete[2]
 
@@ -33,7 +39,7 @@ class Box extends GridItem
   update: ->
     if @anim < 1
       @anim += 0.2
-    else
+    else if @moving()
       # Good thing this isn't multithreaded
       @grid.remove( this, @r, @c )
       @r = @destr

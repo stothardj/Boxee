@@ -7,8 +7,11 @@ class Person
     @destr = @r
     @destc = @c
 
+  moving: ->
+    @destr isnt @r or @destc isnt @c
+
   moveTo: (r, c) ->
-    if @grid.validCoord(r, c) and @destr is @r and @destc is @c
+    if @grid.validCoord(r, c) and not @moving()
       cell = @grid.get( r, c )
       if cell.length is 0
         @destr = r
@@ -47,7 +50,7 @@ class Person
   update: ->
     if @anim < 1
       @anim += 0.2
-    else
+    else if @moving()
       @grid.remove( this, @r, @c )
       @r = @destr
       @c = @destc
